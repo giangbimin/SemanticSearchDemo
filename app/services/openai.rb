@@ -2,7 +2,8 @@ require "json"
 require "net/http"
 
 class Openai
-  API_URL = "https://api.openai.com/v1/embeddings"
+  MODEL = "text-embedding-ada-002"
+  OPENAI_API = "https://api.openai.com/v1/embeddings"
 
   def self.fetch_embeddings(input)
     headers = {
@@ -11,10 +12,10 @@ class Openai
     }
     data = {
       input: input.gsub(/\s|"|'/, ''),
-      model: "text-embedding-ada-002"
+      model: MODEL
     }
     begin
-      response = Net::HTTP.post(URI(API_URL), data.to_json, headers)
+      response = Net::HTTP.post(URI(OPENAI_API), data.to_json, headers)
       return [] unless response.is_a?(Net::HTTPSuccess)
       JSON.parse(response.body)["data"].map { |v| v["embedding"] }[0]
     rescue => e
