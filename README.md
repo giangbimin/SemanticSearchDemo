@@ -199,3 +199,12 @@ export default class extends Controller {
 <%= form_with(url: articles_path, method: :get, data: {controller: "search-form", turbo_frame: "articles", turbo_action: "advance"}) do |form| %>
 ...
 ```
+
+
+# RAILS globalid
+
+
+```
+expiring_sgid = Article.first.to_sgid(expires_in: 2.hours, for: 'sharing')
+GlobalID::Locator.locate_signed(expiring_sgid.to_s, for: 'sharing')
+```
