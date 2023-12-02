@@ -208,3 +208,19 @@ export default class extends Controller {
 expiring_sgid = Article.first.to_sgid(expires_in: 2.hours, for: 'sharing')
 GlobalID::Locator.locate_signed(expiring_sgid.to_s, for: 'sharing')
 ```
+
+# langchainrb
+
+Chunk size is the maximum number of characters that a chunk can contain.
+Chunk overlap is the number of characters that should overlap between two adjacent chunks.
+
+
+```
+  Langchain::Chunker::RecursiveText.new( "Langchain.rb wraps all supported LLMs in a unified interface allowing you to easily swap out and test out different models.", chunk_size: 100, chunk_overlap: 20, separators: ["\n\n"]).chunks
+```
+
+
+
+```
+  rails g model Chunk chunkable:references{polymorphic} content:text embedding:vector{1536}
+```

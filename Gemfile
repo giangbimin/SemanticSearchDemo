@@ -10,7 +10,7 @@ gem "sprockets-rails"
 
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
-# gem "pgvector"
+gem "pgvector"
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
@@ -72,3 +72,6 @@ end
 
 gem "tailwindcss-rails", "~> 2.0"
 gem "neighbor"
+
+gem "langchainrb", "~> 0.8.0"
+gem "ruby-openai", "~> 6.3"
