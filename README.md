@@ -239,3 +239,9 @@ Vector[*second_vector].inner_product(Vector[*first_vector])
 Vector[*third_vector].inner_product(Vector[*first_vector])
 Vector[*fourth_vector].inner_product(Vector[*first_vector])
 ```
+
+### example:
+
+```
+  Breathtaking Ecology
+```
