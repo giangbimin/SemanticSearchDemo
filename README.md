@@ -1,210 +1,100 @@
-# README
-# Demo Development
+# LLM and Semantic Search
 
-## Dependencies
-- ruby/rails
-- postgres 15
-- redis
+## Table of content
 
-```
-redis-server
-```
+- Introduction
+- LLM
+- OPEN-Ai
+- Demo
+- Q&A
 
-## Create application
+## Introduction
 
-```
-rails new ssearch  -T -c tailwind --database=postgresql
-# bundle add tailwindcss-rails
-rails tailwindcss:install
-rails db:migrate
-```
+- Freelance Web developer
+- soccer, manga, cat
+- <https://github.com/giangbimin>
 
-## Create first model
+## LLM
 
-```
-rails generate scaffold Article title:string body:text
-```
+### definition
 
-```
-Rails.application.routes.draw do
-  resources :articles
-  root "articles#index"
-end
-```
+- A large language model (LLM) is a type of artificial intelligence (AI) algorithm that uses deep learning techniques and massively large data sets to understand, summarize, generate and predict new content. The term generative AI also is closely connected with LLMs, which are, in fact, a type of generative AI that has been specifically architected to help generate text-based content.
+
+### Example
+
+- LLM predict the next word will appear in a sentence of a bounce of context user have proved
 
 ```
-rails db:seed
-```
+who is Tom?
 
-## Install more gem
+1. a cat
+2. an Actor
 
-```
-gem "dotenv-rails"
-```
+with context is cartoon
+answer is: Tom is a Cat
 
-## Get api key of open Ai use in this function
-
-```
-OPENAI_API_KEY=""
-```
-
-```
-require "json"
-require "net/http"
-
-class Openai
-  API_URL = "https://api.openai.com/v1/embeddings"
-
-  def self.fetch_embeddings(input)
-    headers = {
-      "Authorization" => "Bearer #{ENV.fetch("OPENAI_API_KEY")}",
-      "Content-Type" => "application/json"
-    }
-    data = {
-      input: input.gsub!(/\s|"|'/, ''),
-      model: "text-embedding-ada-002"
-    }
-
-    response = Net::HTTP.post(URI(API_URL), data.to_json, headers)
-    JSON.parse(response.body)["data"].map { |v| v["embedding"] }[0]
-  end
-end
-```
-
-### test openai embedding
-
-```
-Openai.fetch_embeddings(Article.first.body)
-# example result
-[0.02107661, 0.0058093295, 0.008067076, -0.010111338, 0.0035742256, -0.005000681, 0.004428158, -0.013067757, -0.0020749916]
-```
-
-### Add more gem
-
-```
-gem "neighbor"
-```
-
-### Create logic search
-
-```
-rails generate neighbor:vector
-rails db:migrate
-```
-
-### Migration search vector
-
-```
-class AddNeighborVectorToArticles < ActiveRecord::Migration[7.1]
-  def change
-    add_column :articles, :embedding, :vector, limit: 1536
-  end
-end
-```
-
-
-```
-class Article < ApplicationRecord
-  has_neighbors :embedding, normalize: true
-end
-```
-
-### Assign Job to reindex search
-
-```
-gem 'sidekiq', '~> 7.2'
-```
-
-```
-rails generate sidekiq:job reindex_search
-```
-
-```
-class ReindexSearchJob
-  include Sidekiq::Job
-
-  def perform(id)
-    article = Article.find(id)
-    embedding = Openai.fetch_embeddings(article.body)
-    article.update_attributes(embedding: embedding)
-  end
-end
-```
-
-```
-bundle exec sidekiq
-```
-
-```
-ReindexSearchJob.perform_async(Article.first.id)
-```
-
-```
-nearest_item = Article.first.nearest_neighbors(:embedding, distance: "cosine").first
-nearest_item.neighbor_distance
-Article.first.nearest_neighbors(:embedding, distance: "cosine").first(5).map(&:id)
-```
-
-### Add Search form
-
-```
-  <%= form_with(url: articles_path, method: :get, data: {turbo_frame: "articles", turbo_action: "advance"}) do |form| %>
-    <%= form.label :query, "Search anything:", class: "block mb-2" %>
-    <div class="flex space-x-3">
-      <%= form.text_field :query, class: "py-3 px-4 rounded border ring-0 focus:ring-4 focus:ring-orange-100 focus:shadow-none focus:border-orange-500 focus:outline-none" %>
-      <%= form.submit 'Search', class: "px-4 py-3 font-medium bg-orange-300 text-neutal-900 rounded flex items-center cursor-pointer hover:bg-orange-400 focus:ring-4 ring-0 focus:ring-orange-100" %>
-    </div>
-  <% end %>
-
-  <div id="articles" class="min-w-full">
-    <%= render "articles", articles: @articles %>
-  </div>
-```
-
-```
-# _articles.html.erb
-<%= turbo_frame_tag "articles" do %>
-  <%= render articles %>
-<% end %>
-```
-
-```
-  def index
-    if params[:query].present?
-      @articles = Article.where("title LIKE ?", "%#{params[:query]}%")
-    else
-      @articles = Article.all
-    end
-    render partial: "articles", locals: { articles: @articles } if turbo_frame_request?
-  end
-```
-
-```
-# rails g stimulus search-form
-
-import { Controller } from "@hotwired/stimulus";
-// Connects to data-controller="search-form"
-export default class extends Controller {
-  search() {
-    clearTimeout(this.timeout);
-    this.timeout = setTimeout(() => {
-      this.element.requestSubmit();
-    }, 200);
-  }
-}
+with context is film
+answer is: Tom is a Cat
 
 ```
 
+### Keywords
+
+- Model Size & Parameters: Number of weights in the model's neural network, it bigger => more Smart + more Accuracy
+
+- Tokenizers: all unique characters (including blanks and punctuation marks) are treated as an initial set of n-grams.
+
+- Inference: LLMs use a variety of techniques to make inferences based on the input they are given. One of the key techniques used by these models is known as attention. Attention allows the model to focus on specific parts of the input text when generating a response. This can help the model to better understand the context and generate more accurate responses.
+
+- Retrieval Augmented Generation (RAG): Aims to improve prediction quality by using an external datastore at inference time to build a richer prompt that includes some combination of context, history, and recent/relevant knowledge (RAG LLMs
+
+### User Cases
+
+- Sentiment analysis
+- Customer service
+- Chatbots
+- Online search
+
+### Advantages and Limitations
+
+- Productivity
+- Accuracy
+- Compile with your data
+- Sensitive data leak
+
+## Open-Ai
+
+- OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
+
+### Products
+
+- ChatGPT
+- Dall-e
+
+### Configs
+
+- Temperature: serve as a control mechanism. Higher temperatures introduce randomness, which is beneficial for creative tasks
+- Token, MaxToken: Depending on the model used, requests can use up to 4097 tokens shared between prompt and completion.
+- Top p, Top k => Query Strategy: Euclidean Distance, Cosine Similarity
+- Penalty is a flat reduction if the token has appeared at least once before
+
+### API-Endpoint
+
 ```
-<%= form_with(url: articles_path, method: :get, data: {controller: "search-form", turbo_frame: "articles", turbo_action: "advance"}) do |form| %>
-...
+  MODEL = "text-embedding-ada-002"
+  OPENAI_API = "https://api.openai.com/v1/embeddings"
 ```
 
+### Consider
 
-# RAILS globalid
+- Cost & Policy
 
+### Replace it with you own model
 
-```
-expiring_sgid = Article.first.to_sgid(expires_in: 2.hours, for: 'sharing')
-GlobalID::Locator.locate_signed(expiring_sgid.to_s, for: 'sharing')
-```
+- Quantization model
+- Local Run
+- Policy
+- VRAM/RAM
+- Limit data
+- Open source
+- Free
