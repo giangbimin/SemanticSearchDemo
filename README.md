@@ -1,28 +1,42 @@
 # LLM and Semantic Search
 
-## Table of content
+## Table of Contents
 
-- Introduction
-- LLM
-- OPEN-Ai
-- Demo
-- Q&A
+- [LLM and Semantic Search](#llm-and-semantic-search)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [LLM](#llm)
+    - [Definition](#definition)
+    - [Example](#example)
+    - [Keywords](#keywords)
+    - [Use Cases](#use-cases)
+    - [Advantages and Limitations](#advantages-and-limitations)
+  - [OpenAI](#openai)
+    - [Products](#products)
+    - [Configs](#configs)
+    - [API Endpoint](#api-endpoint)
+    - [Considerations](#considerations)
+    - [Replacing with Your Own Model](#replacing-with-your-own-model)
+  - [Semantic Search](#semantic-search)
+    - [Semantic vs Full Text](#semantic-vs-full-text)
+    - [Semantic search steps](#semantic-search-steps)
+  - [Demo](#demo)
+  - [Q\&A](#qa)
 
 ## Introduction
 
-- Freelance Web developer
-- soccer, manga, cat
-- <https://github.com/giangbimin>
+- Freelance Web Developer with interests in soccer, manga, and cats.
+- [GitHub Profile](https://github.com/giangbimin)
 
 ## LLM
 
-### definition
+### Definition
 
-- A large language model (LLM) is a type of artificial intelligence (AI) algorithm that uses deep learning techniques and massively large data sets to understand, summarize, generate and predict new content. The term generative AI also is closely connected with LLMs, which are, in fact, a type of generative AI that has been specifically architected to help generate text-based content.
+A Large Language Model (LLM) is an artificial intelligence algorithm using deep learning and massive datasets to understand, summarize, generate, and predict content. LLMs, a type of generative AI, specialize in generating text-based content.
 
 ### Example
 
-- LLM predict the next word will appear in a sentence of a bounce of context user have proved
+LLMs predict the next word in a sentence based on user-provided context. For example:
 
 ```
 who is Tom?
@@ -40,15 +54,12 @@ answer is: Tom is a Cat
 
 ### Keywords
 
-- Model Size & Parameters: Number of weights in the model's neural network, it bigger => more Smart + more Accuracy
+- **Model Size & Parameters:** Larger sizes result in smarter and more accurate models.
+- **Tokenizers:** Treats all unique characters as initial n-grams.
+- **Inference:** Uses attention to focus on specific parts of input for better context understanding.
+- **Retrieval Augmented Generation (RAG):** Improves prediction by using external data at inference time.
 
-- Tokenizers: all unique characters (including blanks and punctuation marks) are treated as an initial set of n-grams.
-
-- Inference: LLMs use a variety of techniques to make inferences based on the input they are given. One of the key techniques used by these models is known as attention. Attention allows the model to focus on specific parts of the input text when generating a response. This can help the model to better understand the context and generate more accurate responses.
-
-- Retrieval Augmented Generation (RAG): Aims to improve prediction quality by using an external datastore at inference time to build a richer prompt that includes some combination of context, history, and recent/relevant knowledge (RAG LLMs
-
-### User Cases
+### Use Cases
 
 - Sentiment analysis
 - Customer service
@@ -57,39 +68,39 @@ answer is: Tom is a Cat
 
 ### Advantages and Limitations
 
-- Productivity
-- Accuracy
-- Compile with your data
-- Sensitive data leak
+- **Productivity:** Increased productivity.
+- **Accuracy:** Higher accuracy in predictions.
+- **Compatibility:** Can be customized with your data.
+- **Risk:** Potential for sensitive data leaks.
 
-## Open-Ai
+## OpenAI
 
-- OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
+OpenAI is an AI research and deployment company with a mission to ensure artificial general intelligence benefits humanity.
 
 ### Products
 
 - ChatGPT
-- Dall-e
+- DALL-E
 
 ### Configs
 
-- Temperature: serve as a control mechanism. Higher temperatures introduce randomness, which is beneficial for creative tasks
-- Token, MaxToken: Depending on the model used, requests can use up to 4097 tokens shared between prompt and completion.
-- Top p, Top k => Query Strategy: Euclidean Distance, Cosine Similarity
-- Penalty is a flat reduction if the token has appeared at least once before
+- **Temperature:** Controls randomness, beneficial for creative tasks.
+- **Token, MaxToken:** Limits on token usage (up to 4097 tokens).
+- **Top p, Top k:** Query strategies like Euclidean Distance and Cosine Similarity.
+- **Penalty:** Reduces token occurrence if it has appeared before.
 
-### API-Endpoint
+### API Endpoint
 
 ```
-  MODEL = "text-embedding-ada-002"
-  OPENAI_API = "https://api.openai.com/v1/embeddings"
+MODEL = "text-embedding-ada-002"
+OPENAI_API = "https://api.openai.com/v1/embeddings"
 ```
 
-### Consider
+### Considerations
 
 - Cost & Policy
 
-### Replace it with you own model
+### Replacing with Your Own Model
 
 - Quantization model
 - Local Run
@@ -99,16 +110,18 @@ answer is: Tom is a Cat
 - Open source
 - Free
 
-### Semantic Search
+## Semantic Search
 
-### Semantic VS Full taxt
+### Semantic vs Full Text
+
+Differences between semantic and full-text search:
 
 - Understanding of Queries
 - Matching Techniques
 - Flexibility & Precision
 - Applications & use cases
 
-### Steps
+### Semantic search steps
 
 - Chunks
 - Save Embedding Vectors
@@ -116,8 +129,53 @@ answer is: Tom is a Cat
 - Find neighbors
 - Return results
 
-### Demo
+## Demo
+
+
+- test openai embedding
 
 ```
 
+Openai.fetch_embeddings(Article.first.body)
+
+# example result
+[0.02107661, 0.0058093295, 0.008067076, -0.010111338, 0.0035742256, -0.005000681, 0.004428158, -0.013067757, -0.0020749916]
+
 ```
+
+- Reindex Article
+
+```
+  ReindexSearchJob.perform_async(Article.first.id)
+```
+
+
+- chunks
+
+Chunk size is the maximum number of characters that a chunk can contain.
+Chunk overlap is the number of characters that should overlap between two adjacent chunks.
+
+```
+  Langchain::Chunker::RecursiveText.new( "Langchain.rb wraps all supported LLMs in a unified interface allowing you to easily swap out and test out different models.", chunk_size: 100, chunk_overlap: 20, separators: ["\n\n"]).chunks
+
+```
+
+
+- Compare results
+
+```
+require "matrix"
+first_vector = Chunk.first.embedding
+second_vector = Langchain::LLM::OpenAI.new(api_key: ENV["OPENAI_API_KEY"]).embed(text: "Ai Technology").embedding
+third_vector = Langchain::LLM::OpenAI.new(api_key: ENV["OPENAI_API_KEY"]).embed(text: "bioluminescence organisms").embedding
+fourth_vector = Langchain::LLM::OpenAI.new(api_key: ENV["OPENAI_API_KEY"]).embed(text: "from glowing mushrooms in deep forests to the dazzling displays of bioluminescent plankton in the ocean").embedding
+fifth_vector = Langchain::LLM::OpenAI.new(api_key: ENV["OPENAI_API_KEY"]).embed(text: "Revolutionizing Renewable Energy: Solar Innovations").embedding
+
+Vector[*second_vector].inner_product(Vector[*first_vector])
+Vector[*third_vector].inner_product(Vector[*first_vector])
+Vector[*fourth_vector].inner_product(Vector[*first_vector])
+```
+
+
+## Q&A
+If you have any questions, feel free to ask!
